@@ -1,0 +1,73 @@
+{
+  "universe": {
+    "exchange_suffix": ".NS",
+    "history_period": "1y",
+    "interval": "1d",
+    "indices": [
+      "NIFTY_200",
+      "BANK_NIFTY"
+    ],
+    "custom_symbols": [
+      "SWIGGY"
+    ],
+    "symbols": []
+  },
+  "strategy": {
+    "min_price": 50,
+    "max_price": 10000,
+    "rsi_buy_min": 50,
+    "rsi_buy_max": 68,
+    "rsi_overbought": 70,
+    "hard_overbought": 75,
+    "volume_ratio_min": 1.2,
+    "breakout_buffer_percent": 0.5,
+    "support_entry_buffer_percent": 1.5,
+    "daily_gain_confirmation_percent": 1.0,
+    "buy_score_min": 7.0,
+    "watch_score_min": 5.0,
+    "max_score": 10.0,
+    "price_decimals": 2,
+    "weights": {
+      "price_above_fast_ema": 1.0,
+      "fast_ema_above_slow_ema": 1.0,
+      "price_above_long_ema": 1.0,
+      "rsi_in_buy_zone": 1.0,
+      "rsi_overbought_penalty": 1.0,
+      "macd_bullish": 1.0,
+      "macd_above_zero": 0.5,
+      "volume_confirmation": 1.0,
+      "breakout": 1.5,
+      "near_support": 1.0,
+      "daily_gain_confirmation": 0.5
+    }
+  },
+  "indicators": {
+    "ema_fast": 20,
+    "ema_slow": 50,
+    "ema_long": 200,
+    "rsi_period": 14,
+    "macd_fast": 12,
+    "macd_slow": 26,
+    "macd_signal": 9,
+    "atr_period": 14,
+    "volume_average_period": 20
+  },
+  "support_resistance": {
+    "lookback": 20,
+    "use_previous_period_levels": true
+  },
+  "risk_management": {
+    "stop_below_support_percent": 1.0,
+    "stop_atr_multiplier": 1.5,
+    "fallback_stop_percent": 5.0,
+    "target_r_multiples": [
+      1.5,
+      2.5,
+      3.5
+    ]
+  },
+  "output": {
+    "directory": "scanner_results",
+    "latest_csv_name": "latest_scan.csv"
+  }
+}
