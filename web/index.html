@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSE Swing Scanner — Risk & Opportunity Intelligence</title>
+  <meta name="description" content="Advanced NSE Swing Trading Scanner with real-time analysis, risk-adjusted signals, and interactive visualizations.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Sidebar Navigation -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">⚡</span>
+    <span class="logo-text">SwingScanner</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#" class="nav-link active" data-panel="dashboard" id="nav-dashboard">
+      <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+    </a></li>
+    <li><a href="#" class="nav-link" data-panel="results" id="nav-results">
+      <span class="nav-icon">📋</span><span class="nav-label">Results</span>
+    </a></li>
+    <li><a href="#" class="nav-link" data-panel="charts" id="nav-charts">
+      <span class="nav-icon">📈</span><span class="nav-label">Charts</span>
+    </a></li>
+    <li><a href="#" class="nav-link" data-panel="config" id="nav-config">
+      <span class="nav-icon">⚙️</span><span class="nav-label">Config</span>
+    </a></li>
+    <li><a href="#" class="nav-link" data-panel="history" id="nav-history">
+      <span class="nav-icon">🗂️</span><span class="nav-label">History</span>
+    </a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <span class="version-tag">NSE v2.0</span>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main id="main-content">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button id="sidebar-toggle" class="icon-btn" title="Toggle Sidebar">☰</button>
+      <h1 class="page-title" id="page-title">Dashboard</h1>
+    </div>
+    <div class="topbar-right">
+      <div class="scan-status-pill" id="scan-status-pill">
+        <span class="status-dot idle" id="status-dot"></span>
+        <span id="status-text">Ready</span>
+      </div>
+      <button class="btn btn-primary" id="scan-btn" onclick="triggerScan()">
+        <span id="scan-btn-icon">🚀</span> Run Scan
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════ DASHBOARD PANEL -->
+  <section id="panel-dashboard" class="panel active">
+
+    <!-- NIFTY Regime Card -->
+    <div id="regime-card" class="regime-card hidden">
+      <div class="regime-main">
+        <div class="regime-badge-wrap">
+          <span id="regime-badge" class="regime-badge">— Market Regime —</span>
+        </div>
+        <div class="regime-info">
+          <span class="regime-price-label">NIFTY 50</span>
+          <span class="regime-price" id="regime-price">—</span>
+          <span class="regime-chg" id="regime-chg">—</span>
+        </div>
+        <div class="regime-indicators" id="regime-indicators"></div>
+      </div>
+      <div class="regime-advice" id="regime-advice"></div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">🔍</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Total Scanned</div>
+          <div class="kpi-val" id="kpi-total">—</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon">🟢</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Prime Buys</div>
+          <div class="kpi-val green" id="kpi-green">—</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-yellow">
+        <div class="kpi-icon">🟡</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Watchlist</div>
+          <div class="kpi-val yellow" id="kpi-yellow">—</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="kpi-icon">🔴</div>
+        <div class="kpi-body">
+          <div class="kpi-label">High Risk / Avoid</div>
+          <div class="kpi-val red" id="kpi-red">—</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">⏱️</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Last Scan</div>
+          <div class="kpi-val small" id="kpi-time">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan Progress -->
+    <div id="scan-progress-card" class="card hidden">
+      <div class="card-header">
+        <span class="card-title">⚡ Scan In Progress</span>
+        <span class="spinner" id="scan-spinner"></span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="progress-meta">
+        <span id="progress-text">Initializing...</span>
+        <span id="progress-count">0 / 0</span>
+      </div>
+      <div id="scan-log" class="scan-log"></div>
+    </div>
+
+    <!-- Top Prime Buys Table Preview -->
+    <div class="card" id="top-picks-card">
+      <div class="card-header">
+        <span class="card-title">🟢 Top Prime Buy Setups</span>
+        <button class="btn btn-sm" onclick="switchPanel('results')">View All →</button>
+      </div>
+      <div id="top-picks-body">
+        <div class="empty-state-sm">Run a scan to see top picks</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ RESULTS PANEL -->
+  <section id="panel-results" class="panel">
+    <div class="results-toolbar">
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="tab-btn active" data-color="ALL" onclick="setFilter('ALL',this)">All</button>
+        <button class="tab-btn tab-green" data-color="GREEN" onclick="setFilter('GREEN',this)">🟢 Prime Buy <span class="tab-count" id="tab-count-green">0</span></button>
+        <button class="tab-btn tab-yellow" data-color="YELLOW" onclick="setFilter('YELLOW',this)">🟡 Watchlist <span class="tab-count" id="tab-count-yellow">0</span></button>
+        <button class="tab-btn tab-red" data-color="RED" onclick="setFilter('RED',this)">🔴 High Risk <span class="tab-count" id="tab-count-red">0</span></button>
+      </div>
+      <div class="results-actions">
+        <input type="text" id="symbol-search" class="search-input" placeholder="🔍 Search symbol..." oninput="applyTableFilters()">
+        <button class="btn btn-sm" onclick="exportCSV()" title="Export latest CSV">⬇ CSV</button>
+        <button class="btn btn-sm btn-excel" onclick="exportExcel()" title="Download master Excel workbook (3 sheets)">📊 Excel</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th class="sortable" data-col="symbol" onclick="sortTable('symbol')">Symbol ↕</th>
+            <th class="sortable num-h" data-col="price" onclick="sortTable('price')">Price ↕</th>
+            <th class="num-h">24h %</th>
+            <th class="num-h sortable" data-col="rsi" onclick="sortTable('rsi')">RSI ↕</th>
+            <th class="num-h">Buy Range</th>
+            <th class="num-h">Stop Loss</th>
+            <th class="num-h sortable" data-col="risk_pct" onclick="sortTable('risk_pct')">Risk % ↕</th>
+            <th class="num-h">Target 1</th>
+            <th class="num-h sortable" data-col="risk_reward_to_target1" onclick="sortTable('risk_reward_to_target1')">R:R ↕</th>
+            <th class="num-h sortable" data-col="score" onclick="sortTable('score')">Score ↕</th>
+            <th>Signals</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody">
+          <tr><td colspan="12" class="empty-state-sm">No results. Run a scan first.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="results-empty" class="empty-state hidden">No stocks match the current filter.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ CHARTS PANEL -->
+  <section id="panel-charts" class="panel">
+    <div class="charts-grid">
+      <div class="card chart-card">
+        <div class="card-header"><span class="card-title">📊 Signal Distribution</span></div>
+        <div class="chart-container"><canvas id="chart-signals"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <div class="card-header"><span class="card-title">📈 Score Distribution</span></div>
+        <div class="chart-container"><canvas id="chart-scores"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <div class="card-header"><span class="card-title">📉 RSI Distribution</span></div>
+        <div class="chart-container"><canvas id="chart-rsi"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <div class="card-header"><span class="card-title">🏆 Top 10 Setups by Score</span></div>
+        <div class="chart-container"><canvas id="chart-top10"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ CONFIG PANEL -->
+  <section id="panel-config" class="panel">
+    <div class="card" id="config-card">
+      <div class="card-header">
+        <span class="card-title">⚙️ Scanner Configuration</span>
+        <div class="config-actions">
+          <button class="btn btn-sm" onclick="resetConfig()">↩ Reset</button>
+          <button class="btn btn-primary" onclick="saveConfig()">💾 Save Config</button>
+        </div>
+      </div>
+      <div id="config-form-wrap">
+        <div class="config-loading">Loading configuration...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ HISTORY PANEL -->
+  <section id="panel-history" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🗂️ Scan History</span>
+        <button class="btn btn-sm" onclick="loadHistory()">🔄 Refresh</button>
+      </div>
+      <div id="history-list">
+        <div class="config-loading">Loading history...</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast Notifications -->
+<div id="toast-container"></div>
+
+<!-- Stock Detail Modal -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title" id="modal-title">SYMBOL</h2>
+        <span id="modal-badge" class="status-badge"></span>
+      </div>
+      <button class="icon-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="js/charts.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

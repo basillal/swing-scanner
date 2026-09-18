@@ -64,10 +64,16 @@
       1.5,
       2.5,
       3.5
-    ]
+    ],
+    "max_low_risk_percent": 4.0,
+    "max_moderate_risk_percent": 6.5,
+    "min_reward_risk_ratio": 1.5,
+    "rsi_overbought_warning": 68.0,
+    "rsi_high_risk": 72.0
   },
   "output": {
     "directory": "scanner_results",
-    "latest_csv_name": "latest_scan.csv"
+    "latest_csv_name": "latest_scan.csv",
+    "latest_html_name": "latest_scan.html"
   }
 }

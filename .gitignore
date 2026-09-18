@@ -1,0 +1,53 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environment ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Pytest / Testing ──────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+
+# ── Scanner results (generated outputs — do NOT commit) ───────────────────────
+scanner_results/swing_scan_*.json
+scanner_results/errors_*.json
+scanner_results/latest_scan.json
+scanner_results/latest_scan.html
+scanner_results/latest_scan.csv
+scanner_results/master_scan.xlsx
+
+# ── Index symbol cache (auto-downloaded from NSE) ────────────────────────────
+cache/
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── Environment / secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+*.secret
+
+# ── Keep scanner_results/ directory itself (with a .gitkeep) ─────────────────
+!scanner_results/.gitkeep
