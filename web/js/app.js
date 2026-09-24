@@ -125,6 +125,9 @@ function updateRegimeCard(regime) {
 }
 
 /* ─── Results Table ─────────────────────────────────────── */
+// Lookup map: index → result object (avoids embedding JSON in HTML attributes)
+const _rowMap = {};
+
 function renderResultsTable(results) {
   const sorted = sortResults(results);
   const tbody = document.getElementById('results-tbody');
@@ -133,7 +136,11 @@ function renderResultsTable(results) {
     return;
   }
 
-  tbody.innerHTML = sorted.map(r => {
+  // Build index map so onclick can reference by number, not embedded JSON
+  Object.keys(_rowMap).forEach(k => delete _rowMap[k]);
+  sorted.forEach((r, i) => { _rowMap[i] = r; });
+
+  tbody.innerHTML = sorted.map((r, i) => {
     const tagL = r.color_tag.toLowerCase();
     const chgCls = r.daily_change_pct >= 0 ? 'text-green' : 'text-red';
     const chgStr = `${r.daily_change_pct >= 0 ? '+' : ''}${r.daily_change_pct.toFixed(2)}%`;
@@ -145,13 +152,13 @@ function renderResultsTable(results) {
 
     const reasons = (r.reasons || '').split(';').map(s => s.trim()).filter(Boolean);
     const reasonPills = reasons.map(s =>
-      `<span class="reason-pill ${s.includes('TOO MUCH') || s.includes('RISK') ? 'risk-reason' : ''}">${s}</span>`
+      `<span class="reason-pill ${s.includes('TOO MUCH') || s.includes('RISK') ? 'risk-reason' : ''}">${escHtml(s)}</span>`
     ).join('');
 
     return `
-      <tr class="result-row" data-color="${r.color_tag}" data-symbol="${r.symbol}"
-          onclick="showStockModal(${JSON.stringify(JSON.stringify(r))})">
-        <td><span class="status-badge badge-${tagL}">${r.action_status}</span></td>
+      <tr class="result-row" data-color="${r.color_tag}" data-symbol="${escHtml(r.symbol)}"
+          onclick="showStockModal(${i})">
+        <td><span class="status-badge badge-${tagL}">${escHtml(r.action_status)}</span></td>
         <td>
           <div class="symbol-cell">
             <span class="symbol-name">${r.symbol}</span>
@@ -248,6 +255,10 @@ function renderTopPicks(results) {
     return;
   }
 
+  // Store top picks in map with a 'tp_' prefix to avoid collision with table map
+  const tpMap = {};
+  top.forEach((r, i) => { tpMap[i] = r; window['_tp_' + i] = r; });
+
   container.innerHTML = `
     <table class="top-picks-table">
       <thead>
@@ -263,8 +274,8 @@ function renderTopPicks(results) {
         </tr>
       </thead>
       <tbody>
-        ${top.map(r => `
-          <tr onclick="showStockModal(${JSON.stringify(JSON.stringify(r))})" style="cursor:pointer">
+        ${top.map((r, i) => `
+          <tr onclick="showTopPick(${i})" style="cursor:pointer">
             <td><span class="symbol-name">${r.symbol}</span></td>
             <td class="num-cell">₹${fmtNum(r.price)}</td>
             <td class="num-cell"><span class="rsi-badge rsi-good">${r.rsi.toFixed(1)}</span></td>
@@ -281,8 +292,18 @@ function renderTopPicks(results) {
 }
 
 /* ─── Stock Detail Modal ─────────────────────────────────── */
-function showStockModal(rJson) {
-  const r = JSON.parse(rJson);
+/* Lookup for top picks dashboard rows */
+function showTopPick(i) {
+  const r = window['_tp_' + i];
+  if (!r) return;
+  // Temporarily store in _rowMap at a safe key and open modal
+  _rowMap['tp'] = r;
+  showStockModal('tp');
+}
+
+function showStockModal(idx) {
+  const r = _rowMap[idx];
+  if (!r) return;
   const tagL = r.color_tag.toLowerCase();
   document.getElementById('modal-title').textContent = r.symbol;
   document.getElementById('modal-badge').className = `status-badge badge-${tagL}`;
